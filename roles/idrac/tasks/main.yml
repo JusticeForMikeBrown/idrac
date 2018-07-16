@@ -1,0 +1,40 @@
+
+- name: define conf var when configuring idrac
+  set_fact:
+    conf: []
+  when: "'password' or 'ip' or 'lom1' or 'lom2' or 'dns' or 'ht' or 'name' or 'pxe' or 'stop' or 'start' or 'reboot' or 'reset'"
+
+- include: configure.yml
+  when: conf is defined
+
+- name: define run_update var when doing bios or idrac updates
+  set_fact:
+    run_update: []
+  when: "'bios' or 'idrac'"
+
+- include: bios.yml
+  when: run_update is defined
+
+- name: slack notification
+  tags: drac
+  slack: token={{ slack_token }} channel=#ansible msg='{{ ansible_env.SUDO_USER }} updated idrac on server {{ inventory_hostname }} model {{ ansible_product_name }}' color=good
+         icon_url=http://media.linkonlineworld.com/img/Large/2014/11/9/2014_11_9_10_22_13_286.jpg
+  when: ansible_env.SUDO_USER is defined and ansible_env.USER != 'root'
+
+- name: slack notification
+  tags: drac
+  slack: token={{ slack_token }} channel=#ansible msg='{{ ansible_env.SUDO_USER }} updated idrac on server {{ inventory_hostname }} model {{ ansible_product_name }}' color=good
+         icon_url=http://media.linkonlineworld.com/img/Large/2014/11/9/2014_11_9_10_22_13_286.jpg
+  when: ansible_env.USER == 'root'
+
+- name: slack notification
+  tags: sas,bios
+  slack: token={{ slack_token }} channel=#ansible msg='{{ ansible_env.USER }} updated firmware on {{ inventory_hostname }} model {{ ansible_product_name }}' color=good
+         icon_url=http://media.linkonlineworld.com/img/Large/2014/11/9/2014_11_9_10_22_13_286.jpg
+  when: ansible_env.USER == 'root'
+
+- name: slack notification
+  tags: sas,bios
+  slack: token={{ slack_token }} channel=#ansible msg='{{ ansible_env.USER }} updated firmware on {{ inventory_hostname }} model {{ ansible_product_name }}' color=good
+         icon_url=http://media.linkonlineworld.com/img/Large/2014/11/9/2014_11_9_10_22_13_286.jpg
+  when: ansible_env.SUDO_USER is defined and ansible_env.USER != 'root'

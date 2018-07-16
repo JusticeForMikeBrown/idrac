@@ -1,0 +1,78 @@
+- name: download r620 idrac
+  tags: drac
+  get_url: url={{ url }}/drac/r620/{{ r620_idrac )) dest=/tmp mode=777
+  when: ansible_product_name == 'PowerEdge R620'
+
+- name: update r620 idrac
+  tags: drac
+  register: dupdate
+  shell: /tmp/{{ r620_idrac )) -q -n
+  async: 2400
+  poll: 5
+  when: ansible_product_name == 'PowerEdge R620'
+  failed_when: "{{ dupdate.rc == 1234 }}"
+
+- name: download r330 bios
+  tags: bios
+  get_url: url={{ url }}/firmwares/r330/{{ r330_bios )) dest=/tmp mode=777
+  when: "(bios) and (ansible_product_name == 'PowerEdge R330')"
+
+- name: update r330 bios
+  tags: bios
+  register: bupdate
+  shell: /tmp/{{ r330_bios )) -q -n
+  async: 2400
+  poll: 5
+  when: "(bios) and (ansible_product_name == 'PowerEdge R330')"
+  failed_when: "{{ bupdate.rc == 1234 }}"
+
+- name: download r630 bios
+  tags: bios
+  get_url: url={{ url }}/firmwares/r630/{{ r330_bios )) dest=/tmp mode=777
+  when: "(bios) and (ansible_product_name == 'PowerEdge R630')"
+
+- name: update r630 bios
+  tags: bios
+  register: bupdate
+  shell: /tmp/{{ r630_bios )) -q -n
+  async: 2400
+  poll: 5
+  when: "(bios) and (ansible_product_name == 'PowerEdge R630')"
+  failed_when: "{{ bupdate.rc == 1234 }}"
+
+- name: download r330 sas firmware
+  tags: sas
+  get_url: url={{ url }}/firmwares/r330/{{ r330_sas }} dest=/tmp mode=777
+  when: (sas) and (ansible_product_name == 'PowerEdge R330')
+
+- name: update r330 sas
+  tags: sas
+  register: supdate
+  shell: /tmp/{{ r330_sas }} -q -n
+  async: 2400
+  poll: 5
+  when: (sas) and (ansible_product_name == 'PowerEdge R330')
+  failed_when: "{{ supdate.rc == 1234 }}"
+
+- name: download r420 idrac
+  tags: drac
+  get_url: url={{ url }}/drac/r420/{{ r420_idrac }} dest=/tmp mode=777
+  when: ansible_product_name == 'PowerEdge R420'
+
+- name: update r420 idrac
+  tags: drac
+  register: dupdate
+  shell: /tmp/{{ r420_idrac }} -q -n
+  async: 2400
+  poll: 5
+  when: ansible_product_name == 'PowerEdge R420'
+  failed_when: "{{ dupdate.rc == 1234 }}"
+
+- name: update r630 idrac
+  tags: drac
+  register: dupdate
+  shell: /tmp/{{ r630_idrac }} -q -n
+  async: 2400
+  poll: 5
+  when: ansible_product_name == 'PowerEdge R630'
+  failed_when: "{{ dupdate.rc == 1234 }}"

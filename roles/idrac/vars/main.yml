@@ -1,0 +1,20 @@
+slack_token: st
+
+# used in bios.yml
+url: https://server.example.com/files/dell
+r620_idrac: iDRAC-with-Lifecycle-Controller_Firmware_XTPX4_LN_2.41.40.40_A00.BIN
+r420_idrac: iDRAC-with-Lifecycle-Controller_Firmware_JWKMP_LN_2.50.50.50_A00.BIN
+r330_bios: BIOS_832M2_LN_2.3.2_02.BIN
+r330_sas:  SAS-Drive_Firmware_297DW_LN_MS06_A00.BIN
+r630_bios: BIOS_NMF8F_LN_2.7.1.BIN
+r630_idrac: iDRAC-with-Lifecycle-Controller_Firmware_74GHJ_LN_2.52.52.52_A00.BIN
+
+# used in configure.yml
+mask: 255.255.0.0
+route: 10.0.0.52
+dns1: 10.0.0.24
+dns2: 10.0.0.39
+ssh_key: 'ssh_key'
+smtp: smtp.example.com
+email: sysadmin@example.com
+

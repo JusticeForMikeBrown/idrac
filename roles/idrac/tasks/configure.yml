@@ -1,0 +1,133 @@
+# these commands can also be ran within OS using racadm
+# installed via racadm.yml playbook
+
+- name: set new idrac password
+  tags: password
+  raw: racadm set iDRAC.Users.2.Password "{{ new_password }}"
+  when: password is defined and new_password != ''
+
+- name: set idrac ssh key
+  tags: key
+  raw: racadm sshpkauth -i 2 -k 1 -t "{{ ssh_key }}"
+
+- name: configure idrac ip address
+  tags: ip
+  raw: racadm setniccfg -s {{ ip }} {{ mask }} {{ route }}
+  when: ip is defined
+
+- name: set idrac to lom2 for legacy servers
+  tags: lom2
+  shell: racadm config -g cfgLanNetworking -o cfgNicSelection 3
+  when: lom2 is defined
+
+- name: set idrac to stop using the dedicated idrac port and instead lom1
+  tags: lom1
+  shell: racadm set idrac.nic.selection 2
+  when: lom1 is defined
+
+- name: configure idrac dns1
+  tags: dns
+  raw: racadm config -g cfgLanNetworking -o cfgDNSServer1 {{ dns1 }}
+
+- name: configure idrac dns2
+  tags: dns
+  raw: racadm config -g cfgLanNetworking -o cfgDNSServer2 {{ dns2 }}
+
+- name: configure gateway
+  tags: gateway
+  raw: racadm config -g cfgLanNetworking -o cfgNicGateway {{ route }}
+
+  # service module makes this redundant
+- name: change server name used for email alerts
+  tags: name
+  raw: racadm config -g ifcRacManagedNodeOs -o ifcRacMnOsHostname {{ name }}
+  when: name is defined
+
+- name: set boot order to always be hard disk
+  tags: hd
+  raw: racadm config -g cfgServerInfo -o cfgServerBootOnce 0
+
+- name: set boot order to always be hard disk
+  tags: hd
+  raw: racadm config -g cfgServerInfo -o cfgServerFirstBootDevice HDD
+
+- name: enable hyperthreading
+  tags: ht
+  raw: racadm set BIOS.ProcSettings.LogicalProc Enabled
+  when: ht is defined
+
+# note you must reboot after running this task
+- name: enable hyperthreading
+  tags: ht
+  raw: racadm jobqueue create BIOS.Setup.1-1
+  when: ht is defined
+ 
+- name: enable alerts
+  tags: syslog, email, alerts
+  raw: racadm config -g cfgIpmiLan -o cfgIpmiLanAlertEnable 1 
+
+- name: clear all filters
+  tags: filters, alerts
+  raw: racadm eventfilters set -c idrac.alert.all -a none -n none
+
+- name: configure system event filters - system, warning
+  tags: filters, alerts
+  raw: racadm eventfilters set -c idrac.alert.system.warning -a none -n email,remotesyslog 
+
+- name: configure system event filters - system, critical
+  tags: filters, alerts
+  raw: racadm eventfilters set -c idrac.alert.system.critical -a none -n email,remotesyslog 
+
+- name: configure storage event filter - storage, warning
+  tags: filters, alerts
+  raw: racadm eventfilters set -c idrac.alert.storage.warning -a none -n email,remotesyslog 
+
+- name: configure storage event filter - storage, critical
+  tags: filters, alerts
+  raw: racadm eventfilters set -c idrac.alert.storage.critical -a none -n email,remotesyslog 
+
+- name: configure email alerts
+  tags: email, alerts
+  raw: racadm set iDRAC.RemoteHosts.SMTPServerIPADDRESS {{ smtp }}
+
+- name: configure email alerts
+  tags: email, alerts
+  raw: racadm set iDRAC.EmailAlert.1.Address "{{ email }}"
+
+- name: configure email alerts
+  tags: email, alerts
+  raw: racadm set iDRAC.EmailAlert.1.Enable Enabled
+
+- name: send test email
+  tags: email, alerts
+  raw: racadm eventfilters test -i TMP1000
+
+- name: pxe one time server
+  tags: pxe
+  raw: racadm config -g cfgServerInfo -o cfgServerBootOnce 1
+  when: pxe is defined
+
+- name: pxe one time server
+  tags: pxe
+  raw: racadm config -g cfgServerInfo -o cfgServerFirstBootDevice PXE
+  when: pxe is defined
+
+- name: start server
+  tags: start
+  raw: racadm serveraction powerup
+  when: start is defined
+
+- name: stop server
+  tags: stop
+  raw: racadm serveraction powerdown
+  when: stop is defined
+
+- name: reboot server
+  tags: reboot
+  raw: racadm serveraction powercycle
+  when: reboot is defined
+
+- name: reset idrac if web login frozen
+  tags: reset
+  raw: racadm racreset
+  when: reset is defined
